@@ -4,12 +4,9 @@
     #include <stdlib.h>
     #include <ctype.h>
     #include <string>
-    //#include "symbolTable.hpp"
+    #include "symbolTable.hpp"
     extern int yylex(void);
     void yyerror(char const* s);
-    int symbols[52];
-    int symbolVal(char* symbol);
-    void updateSymbolVal(char* symbol, int val);
 %}
 
 %union {int num; char* id;}
@@ -27,7 +24,7 @@
 /*declaring non terminals that are going
 to map to the specific type*/
 %type <num> line exp term
-%type <id> assignment
+%type <id> assignment iden
 
 
 %%
@@ -42,7 +39,10 @@ line    : assignment ';'        {;}
         | line exit_command ';'         {exit(0);}
         ;
 
-assignment  : identifier '=' exp        {updateSymbolVal($1, $3);}
+assignment  : iden '=' exp        {addValue($1,$3);}
+            ;
+
+iden        : identifier         {$$ = $1;}
             ;
 
 exp     : term                  {$$ = $1;}
@@ -51,33 +51,12 @@ exp     : term                  {$$ = $1;}
         ;
 
 term    : number                  {$$ = $1;}
-        | identifier                   {$$ = symbolVal($1);}
+        | identifier                   {$$ = varValue($1);}
         ;
 
 %%
 
 /*C code*/
-
-int computeSymbolIndex(char* token){
-    int t = atoi(token);
-    int idx = -1;
-    if(islower(t)){
-        idx = t - 'a' + 26;
-    }else if(isupper(t)){
-        idx = t - 'A';
-    }
-    return idx;
-}
-
-int symbolVal(char* symbol){
-    int bucket = computeSymbolIndex(symbol);
-    return symbols[bucket];
-}
-
-void updateSymbolVal(char* symbol, int val){
-    int bucket = computeSymbolIndex(symbol);
-    symbols[bucket] = val;
-}
 
 void yyerror(char const* s) { 
     printf("%s", s);
