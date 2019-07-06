@@ -15,43 +15,57 @@
 %start line
 
 /*declaring tokens*/
-%token print
-%token exit_command
-%token <num> number
-%token <id> identifier
+%token PRINT
+%token EXIT
+%token MINUS
+%token PLUS
+%token ATR
+%token EOL
+%token ABRP
+%token FECP
+%token TIMES
+%token DIV
+%token <num> NUMBER
+%token <id> IDENTIFIER
 
 
 /*declaring non terminals that are going
 to map to the specific type*/
-%type <num> line exp term
-%type <id> assignment iden
+%type <num> line exp term factor
+%type <id> assignment var
 
 
 %%
 
 /*Grammar*/
 
-line    : assignment ';'        {;}   
-        | exit_command ';'              {exit(0);}
-        | print exp ';'         {printf("%d\n", $2);}
-        | line assignment ';'   {;}
-        | line print exp ';'    {printf("%d\n", $3);}
-        | line exit_command ';'         {exit(0);}
+line    : assignment EOL        {;}   
+        | EXIT EOL              {exit(0);}
+        | PRINT exp EOL         {printf("%d\n", $2);}
+        | line assignment EOL   {;}
+        | line PRINT exp EOL    {printf("%d\n", $3);}
+        | line EXIT EOL         {exit(0);}
         ;
 
-assignment  : iden '=' exp        {addValue($1,$3);}
+assignment  : var ATR exp        {addValue($1,$3);}
             ;
 
-iden        : identifier         {$$ = $1;}
+var        : IDENTIFIER         {$$ = $1;}
             ;
 
 exp     : term                  {$$ = $1;}
-        | exp '+' term         {$$ = $1 + $3;}
-        | exp '-' term        {$$ = $1 - $3;} 
+        | exp PLUS term         {$$ = $1 + $3;}
+        | exp MINUS term        {$$ = $1 - $3;} 
         ;
 
-term    : number                  {$$ = $1;}
-        | identifier                   {$$ = varValue($1);}
+term    : factor                  {$$ = $1;}
+        | term TIMES factor       {$$ = $1 * $3;}
+        | term DIV factor        {$$ = $1 / $3;} 
+        ;
+
+factor  : NUMBER                  {$$ = $1;}
+        | IDENTIFIER              {$$ = varValue($1);}
+        | ABRP exp FECP           {$$ = $2;}
         ;
 
 %%
