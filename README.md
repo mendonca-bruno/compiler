@@ -27,7 +27,7 @@ print z;
 	")"                 FECP
 	";"                 EOL
 	
-##Grammar
+## Grammar
 
 ```
 line    : assignment EOL
