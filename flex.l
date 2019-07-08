@@ -1,16 +1,12 @@
 %{
 #include "y.tab.h"
 #include <stdio.h>
-void printTEXT(char* s);
+#include <stdlib.h>
+
 
 %}
 %%
 
-"print"             {return PRINT;}
-"exit"              {return EXIT;}
-[a-zA-Z][_a-zA-Z]*  {yylval.id = strdup(yytext);return IDENTIFIER;}
-[-]?[0-9]+          {yylval.num = atoi(yytext); return NUMBER;}
-[ \t\n]             ;
 "-"                 {return MINUS;}
 "+"                 {return PLUS;}
 "="                 {return ATR;}
@@ -19,13 +15,23 @@ void printTEXT(char* s);
 "/"                 {return DIV;}
 "("                 {return ABRP;}
 ")"                 {return FECP;}
+"print"             {return PRINT;}
+"sprint"            {return SPRINT;}
+"dprint"            {return DPRINT;}
+"string"            {return STRING;}
+"int"               {return INT;}
+"double"            {return DOUBLE;}
+"exit"              {return EXIT;}
+[-]?[0-9]+          {yylval.num = atoi(yytext); return NUMBER;}
+[-]?[0-9]+[.][0-9]+ {yylval.dnum = atof(yytext); return DNUMBER;}
+[a-zA-Z][_a-zA-Z]*  {yylval.id = strdup(yytext);return IDENTIFIER;}
+["]([-_.,:=a-zA-Z0-9]+)["] {yylval.stringid = strdup(yytext);return STRID;}
+[ \t\n]             ;
+
 .                   {ECHO;}
        
 
 %%
-void printTEXT(char*s){
-    printf("%s\n", s);
-}
 
 int yywrap(void){
     return 1;

@@ -10,11 +10,18 @@ using namespace std;
 int varValue(char* symbol);
 int varExists(char* symbol);
 void addValue(char* symbol, int number);
+void addString(char* symbol, char*text);
+void addDoubleValue(char* symbol, double number);
+char* strValue(char* symbol);
+void removeQuote(char * symbol, char c);
+double doubleVarValue(char* symbol);
 
 struct Table
 {
     char *id;
+    char *text;
     int value;
+    double dValue;
 };
 
 std::vector<Table> symbols;
@@ -52,12 +59,72 @@ void addValue(char* symbol, int number){
 }
 
 /*
+Remove the quotes marks from a string value
+ */
+void removeQuote(char * symbol, char c){
+    if(symbol == NULL) return;
+    
+    char * pDest = symbol;
+
+    while(*symbol){
+        if(*symbol != c) *pDest++ = *symbol;
+        symbol++;
+    }
+    *pDest = '\0';
+
+}
+
+void addString(char* symbol, char*text){
+    removeQuote(text, '"');
+    int check = varExists(symbol);
+    if(check != -1){
+        strcpy(symbols[check].text,text);
+        return;
+    }
+    
+    Table t;
+    t.id = symbol;
+    t.text = text;
+    symbols.push_back(t);
+}
+
+/*
 returns the value of the given symbol
  */
 int varValue(char* symbol){
 
     int check = varExists(symbol);
     if(check!=-1) return symbols[check].value;
+    return -1;
+}
+
+char* strValue(char* symbol){
+
+    int check = varExists(symbol);
+    if(check!=-1) return symbols[check].text;
+    return NULL;
+}
+
+void addDoubleValue(char* symbol, double number){
+    int check = varExists(symbol);
+
+    
+    if(check != -1){
+        symbols[check].dValue = number;
+        return;
+    }
+
+    Table t;
+    t.id = symbol;
+    t.dValue = number;
+    symbols.push_back(t);
+
+}
+
+double doubleVarValue(char* symbol){
+
+    int check = varExists(symbol);
+    if(check!=-1) return symbols[check].dValue;
     return -1;
 }
 
